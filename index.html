@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelloMind - Mental Wellness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #F8FAFC;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .hidden-page { display: none !important; }
+        
+        .nav-button.active {
+            background-color: #0f172a;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .nav-button.active i { color: #00BFA5; }
+
+        /* Modal Animation */
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Page -->
+    <div id="page-auth" class="h-full w-full flex items-center justify-center p-6 bg-[#EEF2F6]">
+        <div class="w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 md:p-12 border border-slate-100">
+            <div class="flex flex-col items-center mb-10">
+                <div class="bg-[#00BFA5] p-4 rounded-2xl text-white shadow-xl mb-6">
+                    <i data-lucide="brain" class="w-8 h-8"></i>
+                </div>
+                <h2 id="auth-title" class="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+                <p id="auth-subtitle" class="text-slate-400 text-sm mt-2 font-medium">Log in to your wellness space</p>
+            </div>
+            
+            <form id="auth-form" class="space-y-4">
+                <div id="signup-fields" class="hidden-page space-y-4">
+                    <input type="text" id="full-name" placeholder="Full Name" class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#00BFA5]/20 focus:border-[#00BFA5] transition-all">
+                </div>
+                <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#00BFA5]/20 focus:border-[#00BFA5] transition-all" required value="alex@example.com">
+                <input type="password" id="password" placeholder="Password" class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#00BFA5]/20 focus:border-[#00BFA5] transition-all" required value="password123">
+                
+                <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-lg hover:bg-slate-800 active:scale-[0.98] transition-all mt-4">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="text-center mt-8 text-sm font-bold text-slate-400">
+                <span id="auth-toggle-text">Don't have an account?</span>
+                <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-[#00BFA5] hover:underline ml-1">Create Account</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App UI -->
+    <div id="page-dashboard" class="hidden-page h-full w-full flex bg-[#F8FAFC]">
+        <!-- Sidebar -->
+        <aside class="w-72 bg-white border-r border-slate-100 flex flex-col shrink-0">
+            <div class="p-8 flex-1">
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="bg-[#00BFA5] p-2 rounded-xl text-white shadow-lg flex items-center justify-center">
+                        <i data-lucide="brain" class="w-6 h-6"></i>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-slate-900">MelloMind</h1>
+                </div>
+                
+                <nav class="space-y-2">
+                    <button onclick="switchTab('chat')" id="btn-chat" class="nav-button active w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                        <span class="text-sm font-bold">AI Counselor</span>
+                    </button>
+                    <button onclick="switchTab('mood')" id="btn-mood" class="nav-button w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all group">
+                        <i data-lucide="smile" class="w-5 h-5"></i>
+                        <span class="text-sm font-bold">Mood Bloom</span>
+                    </button>
+                    <button onclick="switchTab('journal')" id="btn-journal" class="nav-button w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all group">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                        <span class="text-sm font-bold">My Journal</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-6 border-t border-slate-50 bg-slate-50/50">
+                <div class="flex items-center gap-3 mb-4">
+                    <div id="user-avatar" class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold">A</div>
+                    <div class="overflow-hidden">
+                        <p id="user-display-name" class="text-sm font-bold text-slate-900 truncate">Alex Walker</p>
+                        <p class="text-[10px] text-[#00BFA5] font-black tracking-widest uppercase">Premium</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="flex items-center gap-2 text-slate-400 hover:text-red-500 text-xs font-bold transition-colors w-full">
+                    <i data-lucide="log-out" class="w-[14px] h-[14px]"></i> Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-w-0">
+            <header class="h-20 border-b border-slate-100 bg-white flex items-center justify-between px-10 shrink-0">
+                <h2 id="header-title" class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">AI Support Session</h2>
+                <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-all">
+                    <i data-lucide="bell" class="w-[18px] h-[18px]"></i>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-10 custom-scroll">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Chat View -->
+                    <div id="view-chat" class="tab-view">
+                        <div class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-220px)]">
+                            <div id="chat-messages" class="flex-1 p-8 space-y-6 overflow-y-auto bg-slate-50/30 custom-scroll"></div>
+                            <form id="chat-form" class="p-6 bg-white border-t border-slate-50 flex gap-4">
+                                <input id="chat-input" autocomplete="off" placeholder="Type your message..." class="flex-1 bg-slate-50 rounded-2xl px-6 py-4 outline-none border-2 border-transparent focus:border-[#00BFA5] transition-all">
+                                <button type="submit" class="bg-slate-900 text-white p-4 rounded-2xl shadow-lg hover:bg-slate-800 transition-all">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Mood View -->
+                    <div id="view-mood" class="tab-view hidden-page">
+                        <div class="bg-white p-12 rounded-[40px] border border-slate-100 shadow-sm text-center">
+                            <h3 class="text-2xl font-black mb-10 text-slate-900">How is your energy today?</h3>
+                            <div class="flex flex-wrap justify-center gap-6">
+                                <button onclick="selectMood('Radiant', '✨')" class="group flex flex-col items-center gap-4">
+                                    <div class="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center text-4xl group-hover:bg-slate-900 group-hover:text-white group-hover:scale-110 transition-all shadow-sm">✨</div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Radiant</span>
+                                </button>
+                                <button onclick="selectMood('Peaceful', '🌿')" class="group flex flex-col items-center gap-4">
+                                    <div class="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center text-4xl group-hover:bg-slate-900 group-hover:text-white group-hover:scale-110 transition-all shadow-sm">🌿</div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Peaceful</span>
+                                </button>
+                                <button onclick="selectMood('Restless', '🌀')" class="group flex flex-col items-center gap-4">
+                                    <div class="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center text-4xl group-hover:bg-slate-900 group-hover:text-white group-hover:scale-110 transition-all shadow-sm">🌀</div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Restless</span>
+                                </button>
+                                <button onclick="selectMood('Exhausted', '☁️')" class="group flex flex-col items-center gap-4">
+                                    <div class="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center text-4xl group-hover:bg-slate-900 group-hover:text-white group-hover:scale-110 transition-all shadow-sm">☁️</div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Exhausted</span>
+                                </button>
+                            </div>
+                            <div id="mood-feedback" class="mt-12 text-[#00BFA5] font-bold text-lg h-8"></div>
+                        </div>
+                    </div>
+
+                    <!-- Journal View -->
+                    <div id="view-journal" class="tab-view hidden-page space-y-6">
+                        <div class="flex justify-between items-end mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black text-slate-900">Reflections</h3>
+                                <p class="text-slate-400 font-medium">Your private thoughts, safe forever.</p>
+                            </div>
+                            <button onclick="openJournalModal()" class="bg-[#00BFA5] text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#00a891] transition-all flex items-center gap-2 shadow-lg shadow-[#00BFA5]/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Write Entry
+                            </button>
+                        </div>
+                        <div id="journal-list" class="space-y-4">
+                            <!-- Entries injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Journal Modal -->
+    <div id="journal-modal" class="hidden-page fixed inset-0 z-50 flex items-center justify-center p-6 modal-backdrop">
+        <div class="bg-white w-full max-w-2xl rounded-[40px] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-xl font-black text-slate-900">New Reflection</h3>
+                <button onclick="closeJournalModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-8 space-y-6 overflow-y-auto">
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Title</label>
+                    <input id="entry-title" type="text" placeholder="What's on your mind?" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#00BFA5]/20 text-lg font-bold">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Content</label>
+                    <textarea id="entry-content" rows="6" placeholder="Spill your thoughts..." class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#00BFA5]/20 text-slate-600 leading-relaxed"></textarea>
+                </div>
+            </div>
+            <div class="p-8 border-t border-slate-100 flex justify-end gap-4 bg-slate-50/50">
+                <button onclick="closeJournalModal()" class="px-6 py-4 rounded-2xl font-bold text-slate-400 hover:bg-slate-100 transition-all">Cancel</button>
+                <button onclick="saveJournalEntry()" class="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-slate-800 transition-all">Save Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        let state = {
+            isLogin: true,
+            user: null,
+            activeTab: 'chat',
+            messages: [
+                { id: 1, role: 'ai', text: "I'm here to listen. How has your mind been lately?", time: '10:00 AM' }
+            ],
+            journalEntries: [
+                { id: 1, date: 'Jan 28, 2024', title: 'Processing Uncertainty', content: 'Today was a bit overwhelming at work, but I practiced my breathing techniques and it helped.' }
+            ]
+        };
+
+        // --- Auth Logic ---
+        function toggleAuthMode() {
+            state.isLogin = !state.isLogin;
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const signupFields = document.getElementById('signup-fields');
+            const toggleText = document.getElementById('auth-toggle-text');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+
+            if (state.isLogin) {
+                title.innerText = 'Welcome Back';
+                subtitle.innerText = 'Log in to your wellness space';
+                submitBtn.innerText = 'Sign In';
+                signupFields.classList.add('hidden-page');
+                toggleText.innerText = "Don't have an account?";
+                toggleBtn.innerText = 'Create Account';
+            } else {
+                title.innerText = 'Join MelloMind';
+                subtitle.innerText = 'Start your journey to mental clarity';
+                submitBtn.innerText = 'Create Account';
+                signupFields.classList.remove('hidden-page');
+                toggleText.innerText = "Already have an account?";
+                toggleBtn.innerText = 'Log In';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('full-name').value || 'Alex Walker';
+            
+            state.user = { email, name };
+            
+            // Update UI with name
+            document.getElementById('user-display-name').innerText = name;
+            document.getElementById('user-avatar').innerText = name.charAt(0);
+            
+            document.getElementById('page-auth').classList.add('hidden-page');
+            document.getElementById('page-dashboard').classList.remove('hidden-page');
+            lucide.createIcons();
+            renderMessages();
+            renderJournal();
+        }
+
+        function logout() {
+            state.user = null;
+            document.getElementById('page-dashboard').classList.add('hidden-page');
+            document.getElementById('page-auth').classList.remove('hidden-page');
+        }
+
+        // --- Tabs Logic ---
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            const titles = { chat: 'AI Support Session', mood: 'Wellness Insights', journal: 'Personal Reflection' };
+            document.getElementById('header-title').innerText = titles[tabId];
+
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden-page'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden-page');
+
+            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${tabId}`).classList.add('active');
+            
+            lucide.createIcons();
+        }
+
+        // --- Chat Logic ---
+        function renderMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = state.messages.map(m => `
+                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[75%] p-5 rounded-3xl ${m.role === 'user' ? 'bg-[#00BFA5] text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'} shadow-sm">
+                        <p class="text-sm font-medium leading-relaxed">${m.text}</p>
+                        <span class="text-[10px] mt-2 block font-bold opacity-40 uppercase tracking-tighter">${m.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            state.messages.push({ role: 'user', text, time });
+            input.value = '';
+            renderMessages();
+
+            setTimeout(() => {
+                state.messages.push({ role: 'ai', text: "That sounds like something we should explore. Tell me more about how that made you feel.", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+                renderMessages();
+            }, 800);
+        }
+
+        // --- Mood Logic ---
+        function selectMood(name, emoji) {
+            const feedback = document.getElementById('mood-feedback');
+            feedback.innerText = `Logged: ${emoji} ${name}. Take a deep breath.`;
+            setTimeout(() => feedback.innerText = '', 3000);
+        }
+
+        // --- Journal Logic ---
+        function renderJournal() {
+            const list = document.getElementById('journal-list');
+            if (state.journalEntries.length === 0) {
+                list.innerHTML = `<div class="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
+                    <p class="text-slate-400 font-bold">No entries yet. Start writing your journey.</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = state.journalEntries.map(entry => `
+                <div class="bg-white p-8 rounded-[32px] border border-slate-100 hover:border-[#00BFA5] transition-all group relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] text-[#00BFA5] font-black uppercase tracking-widest">${entry.date}</span>
+                        <button onclick="deleteEntry(${entry.id})" class="text-slate-200 hover:text-red-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-2">${entry.title}</h4>
+                    <p class="text-slate-500 text-sm leading-relaxed">${entry.content}</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function openJournalModal() {
+            document.getElementById('journal-modal').classList.remove('hidden-page');
+            document.getElementById('entry-title').focus();
+        }
+
+        function closeJournalModal() {
+            document.getElementById('journal-modal').classList.add('hidden-page');
+            document.getElementById('entry-title').value = '';
+            document.getElementById('entry-content').value = '';
+        }
+
+        function saveJournalEntry() {
+            const title = document.getElementById('entry-title').value;
+            const content = document.getElementById('entry-content').value;
+            
+            if (!title || !content) return;
+
+            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            state.journalEntries.unshift({ id: Date.now(), date, title, content });
+            
+            renderJournal();
+            closeJournalModal();
+        }
+
+        function deleteEntry(id) {
+            state.journalEntries = state.journalEntries.filter(e => e.id !== id);
+            renderJournal();
+        }
+
+        // --- Init ---
+        window.onload = () => {
+            lucide.createIcons();
+            document.getElementById('auth-form').addEventListener('submit', handleLogin);
+            document.getElementById('chat-form').addEventListener('submit', handleChat);
+            renderMessages();
+            renderJournal();
+        };
+    </script>
+</body>
+</html>
